@@ -1,12 +1,13 @@
 package com.antigravity.remote.ui
 
 import android.content.Context
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.antigravity.remote.R
@@ -31,15 +32,16 @@ object SessionSwitcherBottomSheet {
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recyclerSessions)
         val btnNewSession = view.findViewById<MaterialButton>(R.id.btnNewSession)
+        val inputSearch = view.findViewById<EditText>(R.id.inputSearchSessions)
 
         recyclerView.layoutManager = LinearLayoutManager(context)
 
-        fun refreshList() {
-            val sessions = sessionManager.getSessionsForAccount(activeAccount.id)
-            val activeSession = sessionManager.getActiveSession(activeAccount.id)
+        var allSessions = sessionManager.getSessionsForAccount(activeAccount.id)
+        val activeSession = sessionManager.getActiveSession(activeAccount.id)
 
+        fun updateAdapter(filteredList: List<AntigravitySession>) {
             recyclerView.adapter = SessionAdapter(
-                sessions = sessions,
+                sessions = filteredList,
                 activeSessionId = activeSession.id,
                 onSessionClick = { selected ->
                     sessionManager.setActiveSession(selected.id)
@@ -48,12 +50,27 @@ object SessionSwitcherBottomSheet {
                 },
                 onSessionDelete = { toDelete ->
                     sessionManager.removeSession(toDelete.id)
-                    refreshList()
+                    allSessions = sessionManager.getSessionsForAccount(activeAccount.id)
+                    updateAdapter(allSessions)
                 }
             )
         }
 
-        refreshList()
+        updateAdapter(allSessions)
+
+        inputSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val query = s?.toString()?.lowercase()?.trim() ?: ""
+                val filtered = if (query.isEmpty()) {
+                    allSessions
+                } else {
+                    allSessions.filter { it.title.lowercase().contains(query) || it.workspaceName.lowercase().contains(query) }
+                }
+                updateAdapter(filtered)
+            }
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
         btnNewSession.setOnClickListener {
             showCreateSessionDialog(context, activeAccount.id, sessionManager) { newSession ->

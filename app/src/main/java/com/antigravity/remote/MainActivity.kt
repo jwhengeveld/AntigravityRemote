@@ -30,6 +30,7 @@ import com.antigravity.remote.databinding.ActivityMainBinding
 import com.antigravity.remote.model.AntigravityAccount
 import com.antigravity.remote.notification.NotificationHelper
 import com.antigravity.remote.ui.AccountDialog
+import com.antigravity.remote.ui.CommandPaletteDialog
 import com.antigravity.remote.ui.HapticHelper
 import com.antigravity.remote.ui.MobileViewportInjector
 import com.antigravity.remote.ui.PromptBottomSheet
@@ -114,7 +115,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Window Insets for system status bar padding
         ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { v, insets ->
             val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
             v.setPadding(0, statusBarHeight, 0, 0)
@@ -251,9 +251,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        binding.btnNativeAttach.setOnClickListener { view ->
+        binding.btnCommandPalette.setOnClickListener { view ->
             HapticHelper.performClick(view)
-            openFilePickerForWeb()
+            CommandPaletteDialog.showCommandPalette(this) { cmd ->
+                val current = binding.inputNativePrompt.text.toString()
+                if (current.isBlank()) {
+                    binding.inputNativePrompt.setText("$cmd ")
+                } else {
+                    binding.inputNativePrompt.setText("$current $cmd ")
+                }
+                binding.inputNativePrompt.setSelection(binding.inputNativePrompt.text.length)
+            }
         }
 
         binding.btnNativeVoice.setOnClickListener { view ->

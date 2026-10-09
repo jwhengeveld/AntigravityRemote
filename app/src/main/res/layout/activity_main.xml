@@ -65,6 +65,20 @@
                         android:textSize="16sp"
                         android:textStyle="bold" />
 
+                    <!-- Live Agent Working Pulse Badge -->
+                    <TextView
+                        android:id="@+id/txtAgentStateBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:background="@color/primary_dark"
+                        android:paddingHorizontal="6dp"
+                        android:paddingVertical="2dp"
+                        android:text="ONLINE"
+                        android:textColor="#FFFFFF"
+                        android:textSize="10sp"
+                        android:textStyle="bold" />
+
                     <!-- Model Badge -->
                     <com.google.android.material.chip.Chip
                         android:id="@+id/chipModelBadge"
@@ -127,7 +141,7 @@
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-        <!-- NATIVE MOBILE CHAT INPUT BAR -->
+        <!-- NATIVE MOBILE CHAT INPUT BAR WITH COMMAND PALETTE BUTTON -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/nativeInputContainer"
             android:layout_width="match_parent"
@@ -149,18 +163,18 @@
                 android:paddingVertical="4dp">
 
                 <ImageButton
-                    android:id="@+id/btnNativeAttach"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:id="@+id/btnCommandPalette"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Attach Media"
+                    android:contentDescription="Command Palette"
                     android:src="@drawable/ic_add"
                     app:tint="@color/accent" />
 
                 <ImageButton
                     android:id="@+id/btnNativeVoice"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Voice Input"
                     android:src="@drawable/ic_mic"
@@ -172,7 +186,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:hint="Ask Antigravity agent..."
+                    android:hint="Ask Antigravity agent (/ for commands)..."
                     android:inputType="textMultiLine"
                     android:maxLines="3"
                     android:paddingHorizontal="8dp"
