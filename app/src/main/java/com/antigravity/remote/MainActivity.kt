@@ -18,6 +18,8 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -63,7 +65,7 @@ class MainActivity : AppCompatActivity() {
                 )
                 accountManager.saveAccount(newAcc)
                 accountManager.setActiveAccount(newAcc.id)
-                accountManager.applyCookiesForAccount(newAcc)
+                accountManager.applyCookiesForAccount(newAcc, binding.webView)
                 updateHeaderUI()
                 loadUrlForActiveAccount(defaultUrl)
                 Toast.makeText(this, "Signed in as ${newAcc.email}", Toast.LENGTH_SHORT).show()
@@ -111,6 +113,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        // Window Insets for system status bar padding
+        ViewCompat.setOnApplyWindowInsetsListener(binding.appBarLayout) { v, insets ->
+            val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            v.setPadding(0, statusBarHeight, 0, 0)
+            insets
+        }
 
         accountManager = AccountManager(this)
         sessionManager = SessionManager(this)
@@ -175,13 +184,24 @@ class MainActivity : AppCompatActivity() {
 
         settings.cacheMode = WebSettings.LOAD_DEFAULT
 
-        val customUserAgent = settings.userAgentString + " AntigravityRemoteMobile/4.0 (Android Native App)"
+        val customUserAgent = settings.userAgentString + " AntigravityRemoteMobile/5.0 (Android Native App)"
         settings.userAgentString = customUserAgent
 
         val jsBridge = AntigravityJSBridge(
             context = this,
             accountManager = accountManager,
-            notificationHelper = notificationHelper
+            sessionManager = sessionManager,
+            notificationHelper = notificationHelper,
+            onDOMStateUpdated = { title, modelName ->
+                runOnUiThread {
+                    if (title.isNotBlank() && title != "Antigravity Session") {
+                        binding.txtActiveSessionTitle.text = title
+                    }
+                    if (modelName.isNotBlank()) {
+                        binding.chipModelBadge.text = modelName
+                    }
+                }
+            }
         )
         binding.webView.addJavascriptInterface(jsBridge, "AntigravityNative")
 
@@ -362,25 +382,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun sendPromptToWeb(promptText: String) {
         val escaped = promptText.replace("'", "\\'").replace("\n", "\\n")
-        val jsScript = """
-            (function() {
-                const el = document.querySelector('textarea') || document.querySelector('[contenteditable="true"]');
-                if (el) {
-                    if (el.tagName === 'TEXTAREA') {
-                        el.value = '$escaped';
-                    } else {
-                        el.innerText = '$escaped';
-                    }
-                    el.dispatchEvent(new Event('input', { bubbles: true }));
-                    el.focus();
-                    
-                    const sendBtn = document.querySelector('button[type="submit"]') || document.querySelector('button[aria-label*="Send"]');
-                    if (sendBtn) {
-                        setTimeout(() => sendBtn.click(), 100);
-                    }
-                }
-            })();
-        """.trimIndent()
+        val jsScript = "if (window.AntigravitySendPrompt) { window.AntigravitySendPrompt('$escaped'); }"
 
         binding.webView.evaluateJavascript(jsScript, null)
         HapticHelper.vibrateSuccess(this)

@@ -10,15 +10,52 @@ import android.os.VibratorManager
 import android.webkit.JavascriptInterface
 import android.widget.Toast
 import com.antigravity.remote.data.AccountManager
+import com.antigravity.remote.data.SessionManager
+import com.antigravity.remote.model.AntigravitySession
 import com.antigravity.remote.model.UsageStats
 import com.antigravity.remote.notification.NotificationHelper
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class AntigravityJSBridge(
     private val context: Context,
     private val accountManager: AccountManager,
+    private val sessionManager: SessionManager,
     private val notificationHelper: NotificationHelper,
-    private val onUsageStatsUpdated: ((UsageStats) -> Unit)? = null
+    private val onDOMStateUpdated: ((title: String, modelName: String) -> Unit)? = null
 ) {
+
+    private val gson = Gson()
+
+    @JavascriptInterface
+    fun updateDOMState(title: String, modelName: String, sessionsJson: String) {
+        val activeAccount = accountManager.getActiveAccount() ?: return
+
+        if (sessionsJson.isNotBlank()) {
+            try {
+                val type = object : TypeToken<List<Map<String, String>>>() {}.type
+                val parsed: List<Map<String, String>>? = gson.fromJson(sessionsJson, type)
+
+                parsed?.forEach { map ->
+                    val sessTitle = map["title"] ?: ""
+                    val sessUrl = map["url"] ?: ""
+                    if (sessTitle.isNotBlank()) {
+                        val session = AntigravitySession(
+                            title = sessTitle,
+                            workspaceName = "Remote Workspace",
+                            accountId = activeAccount.id,
+                            url = sessUrl
+                        )
+                        sessionManager.saveSession(session)
+                    }
+                }
+            } catch (e: Exception) {
+                // Parsing fallback
+            }
+        }
+
+        onDOMStateUpdated?.invoke(title, modelName)
+    }
 
     @JavascriptInterface
     fun notifyTaskFinished(title: String, message: String, targetUrl: String?) {
@@ -48,7 +85,6 @@ class AntigravityJSBridge(
             activeModelName = modelName ?: "Gemini 3.6 Flash (High)"
         )
         accountManager.saveUsageStats(stats)
-        onUsageStatsUpdated?.invoke(stats)
     }
 
     @JavascriptInterface
