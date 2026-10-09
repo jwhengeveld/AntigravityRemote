@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/drawer_new_chat"
+            android:icon="@drawable/ic_add"
+            android:title="New Conversation" />
+        <item
+            android:id="@+id/drawer_projects"
+            android:icon="@drawable/ic_instances"
+            android:title="Projects &amp; Workspaces" />
+        <item
+            android:id="@+id/drawer_subagents"
+            android:icon="@drawable/ic_instances"
+            android:title="Active Subagents &amp; Tasks" />
+        <item
+            android:id="@+id/drawer_scheduled"
+            android:icon="@drawable/ic_refresh"
+            android:title="Scheduled Automations" />
+        <item
+            android:id="@+id/drawer_usage"
+            android:icon="@drawable/ic_usage"
+            android:title="Usage &amp; Quotas" />
+        <item
+            android:id="@+id/drawer_accounts"
+            android:icon="@drawable/ic_account"
+            android:title="Accounts &amp; Login" />
+        <item
+            android:id="@+id/drawer_settings"
+            android:icon="@drawable/ic_settings"
+            android:title="Settings &amp; Permissions" />
+    </group>
+
+</menu>

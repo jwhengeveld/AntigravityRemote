@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_dashboard"
+        android:icon="@drawable/ic_instances"
+        android:title="Canvas" />
+    <item
+        android:id="@+id/nav_sessions"
+        android:icon="@drawable/ic_instances"
+        android:title="Sessions" />
+    <item
+        android:id="@+id/nav_usage"
+        android:icon="@drawable/ic_usage"
+        android:title="Usage" />
+    <item
+        android:id="@+id/nav_accounts"
+        android:icon="@drawable/ic_account"
+        android:title="Accounts" />
+</menu>
