@@ -3,6 +3,7 @@ package com.antigravity.remote.data
 import android.content.Context
 import android.content.SharedPreferences
 import android.webkit.CookieManager
+import android.webkit.WebView
 import com.antigravity.remote.model.AntigravityAccount
 import com.antigravity.remote.model.UsageStats
 import com.google.gson.Gson
@@ -82,10 +83,12 @@ class AccountManager(private val context: Context) {
     /**
      * Restore cookies into CookieManager for the target active account
      */
-    fun applyCookiesForAccount(account: AntigravityAccount) {
+    fun applyCookiesForAccount(account: AntigravityAccount, webView: WebView? = null) {
         val cookieManager = CookieManager.getInstance()
         cookieManager.setAcceptCookie(true)
-        cookieManager.setAcceptThirdPartyCookies(null, true)
+        if (webView != null) {
+            cookieManager.setAcceptThirdPartyCookies(webView, true)
+        }
         
         // Remove existing session cookies for isolation
         cookieManager.removeAllCookies(null)

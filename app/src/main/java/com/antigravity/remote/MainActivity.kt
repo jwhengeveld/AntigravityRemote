@@ -412,7 +412,7 @@ class MainActivity : AppCompatActivity() {
     private fun loadUrlForActiveAccount(url: String) {
         val activeAccount = accountManager.getActiveAccount()
         if (activeAccount != null) {
-            accountManager.applyCookiesForAccount(activeAccount)
+            accountManager.applyCookiesForAccount(activeAccount, binding.webView)
         }
         binding.webView.loadUrl(url)
     }
